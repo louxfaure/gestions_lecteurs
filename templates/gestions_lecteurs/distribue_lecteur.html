@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% block title %}Rechercher un lecteur{% endblock %}
+{% block content %}
+<div class="container-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Rechercher un lecteur</h1>
+        <p class="lead">
+            Rechercher un lecteur par son <span class="font-weight-bold">identifiant principal</span> afin de voir dans quelles institutions le compte est présent.
+            Selon la situtaion du lecteur le système vous proposera de supprimer ou modifier son compte. 
+        </p>
+</div>
+
+<div class="py-3">
+<form action="{% url "distribue-lecteur" %}" method="post" class="form">
+    {% csrf_token %}
+    
+    <div class="input-group mb-3 input-group-lg">
+    {% for field in form %}
+        {{ field }}
+    {% endfor %}
+
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit" id="button-addon2">Rechercher</button>
+        </div>
+    </div>
+    </form>
+</div>
+{% endblock %}

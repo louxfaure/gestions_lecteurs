@@ -23,6 +23,11 @@ FORMATS = {
 }
 
 RESOURCES = {
+    'get_user' : 'users/{user_id}?view={user_view}&expand={user_expand}',
+    'get_user_with_id_type' : 'users/{user_id}?user_id_type={user_id_type}&view={user_view}&expand={user_expand}',
+    'retrieve_user_by_id' : 'users?limit=10&offset=0&q=primary_id~{user_id}',
+    'delete_user' : 'users/{user_id}',
+    'update_user' : 'users/{user_id}?user_id_type=all_unique&override={param_override}&send_pin_number_letter=false&recalculate_roles=false&registration_rules=false',
     'distribute_user' : 'users?social_authentication=false&send_pin_number_letter=false&source_institution_code=33PUDB_NETWORK&source_user_id={user_id}&registration_rules=false'
 }
 
@@ -155,4 +160,80 @@ class Users(object):
             return status, response
         else:
             return status, self.extract_content(response)
+
+    def get_user(self, user_id, user_id_type='PRIMARYIDENTIFIER' , user_expand='loans,requests', user_view='brief',accept='json'):
+        """Retourne un usager à partir d'un identifiant
+        
+        Arguments:
+            user_id {str} -- identifiant du lecteur
+        
+        Keyword Arguments:
+            user_id_type {str} -- type d'identifiant sure lequel effectué la recherche BARCODE ou PRIMARYIDENTIFIER (default: {'PRIMARYIDENTIFIER'})
+            user_expand {str} -- informations supllémentaires: (default: {'loans'})
+            user_view {str} -- affichage complet full ou brief  (default: {'brief'})
+            accept {str} -- format de sortie xml ou json (default: {'json'})
+        
+        Returns:
+            status {str} -- Success or Error
+            response {str} -- Message d'erreurs ou Lecteur 
+        """
+        url = 'get_user'
+        if  user_id_type != 'PRIMARYIDENTIFIER' :
+            url = 'get_user_with_id_type'
+        status,response = self.request('GET', url,
+                                {'user_id' : user_id,
+                                'user_id_type' : user_id_type,
+                                'user_view' : user_view,
+                                'user_expand' : user_expand},
+                                accept=accept)
+        if status == 'Success':
+            return status, self.extract_content(response)
+        else:
+            return status, response
+
+    def delete_user(self, user_id, accept='xml'):
+        """Supprime un usager à partir de son identifiant
+        
+        Arguments:
+            user_id {str} -- identifiant du lecteur
+        
+        
+        Returns:
+            [type] -- [description]
+        """
+        status,response = self.request('DELETE', 'delete_user',
+                                {'user_id' : user_id},
+                                accept=accept)
+        if status == 'Error':
+            return status, response
+        else:
+            return status, response.status_code
+
+    def update_user(self, user_id, override, data ,accept='xml',content_type='xml'):
+        """Mets à jour lesinformations utilistaeurs
+        
+        Arguments:
+            user_id {str} -- identifiant de l'utilisateur Primary Id ou Barcode
+            force_update {str} -- Par défaut certains champs sont protégés. Pour forcer leurs mis àjour il faut renseigner le paramètre override.
+            Valeurs par défaut :user_group, job_category, pin_number, preferred_language, campus_code, rs_libraries, user_title, library_notices
+            data {json ou xml} -- object lecteur en json ou xml selon le parmètre passer à accept
+        
+        Keyword Arguments:
+            accept {str} -- xml ou json (default: {'xml'})
+        
+        Returns:
+            status {str} -- Success or Error
+            response {str} -- Message d'erreurs ou Lecteur MOdifié
+        """ 
+
+        status,response = self.request('PUT', 'update_user',
+                                {'user_id' : user_id,
+                                'param_override' : override },
+                                data=data,
+                                accept=accept,
+                                content_type=content_type)
+        if status == 'Error':
+            return status, response
+        else:
+            return status,  self.extract_content(response)
     

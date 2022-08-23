@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Modif {{ identifiant }}{% endblock %}
+{% block content %}
+<div class="container-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Mis à jour du compte {{ identifiant }} pour l'institution {{ institution }}</h1>
+</div>
+{% if status == 'Success' %}
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Well done!</h4>
+    <p>Le lecteur est passé dans la catégorie {{ cat_usager }} pour l'institution {{ etab }}.</p>
+    <hr>
+    <p>Il sera distribué aux autres institutions dans les prochaines 5 minutes</p>
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">{{ status }}</h4>
+    <p>Une erreur grave s'est produite</p>
+    <hr>
+    <p>{{ response }}</p>
+</div>
+{% endif %}
+{% endblock %}

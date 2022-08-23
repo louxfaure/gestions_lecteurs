@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Modif {{ identifiant }}{% endblock %}
+{% block content %}
+<div class="container-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">{{ identifiant }}</h1>
+        <p class="lead">Permet de voir dans quelles institutions se trouve le compte du lecteur et s'il a des transactions dans celle-ci.</p>
+</div>
+<div class="py-3">
+        <form name="form_modif_lecteur" action="{% url 'modif-lecteur' identifiant %}"  onsubmit="return validateForm()" method="post" class="form">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {{ form.media }}
+
+            {% buttons %}
+                <button type="submit" id="button_modif_lecteur"class="btn btn-primary">Submit</button>
+            {% endbuttons %}
+        </form>
+</div>
+{% if debug %}
+<div class="alert alert-warning" role="alert">
+        <p>Nouvel Id : {{ new_id_lecteur }}</p>
+        <p>Nouvelle date : {{ expiry_date }} - {{ date }}</p>
+</div>
+{% for key, datas in results.items %}
+<div class="list-group-item {% if datas.status == 'Success' %} list-group-item-success {% else%} list-group-item-danger {% endif %}">
+ <div class ="row"> 
+ <div class="col-4"><h5>{{ key }}</h5></div>
+ <div class="col-4">
+     {{ datas.status }}
+ </div>
+ <div class="col-4">
+       {{ datas.response }}
+ </div>
+</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

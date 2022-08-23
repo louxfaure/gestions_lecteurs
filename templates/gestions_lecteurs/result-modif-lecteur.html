@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Modif {{ identifiant }}{% endblock %}
+{% block content %}
+<div class="container-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">{{ identifiant }}</h1>
+</div>
+<div class="list-group">
+        {% for etab,values in results.items %}
+        {% if values.status == 'Error' %}
+       <div class="list-group-item list-group-item-success list-group-item-danger">
+        <div class ="row"> 
+        <div class="col-4"><h5>{{ etab }}</h5></div>
+        <div class="col-8">
+            {{ values.response }}
+        </div>
+       </div>
+       </div>
+       {% else %}
+       <div class="list-group-item list-group-item-success">
+        <div class ="row"> 
+        <div class="col-4"><h5>{{ etab }}</h5></div>
+        <div class="col-8">
+            Yo Man ! L'utilisateur {{ identifiant }} a été modifié avec succés
+        </div>
+       </div>
+       </div>
+       {% endif %}
+       {% endfor %}
+</div>
+
+{% endblock %}
