@@ -27,8 +27,9 @@ RESOURCES = {
     'get_user_with_id_type' : 'users/{user_id}?user_id_type={user_id_type}&view={user_view}&expand={user_expand}',
     'retrieve_user_by_id' : 'users?limit=10&offset=0&q=primary_id~{user_id}',
     'delete_user' : 'users/{user_id}',
-    'update_user' : 'users/{user_id}?user_id_type=all_unique&override={param_override}&send_pin_number_letter=false&recalculate_roles=false&registration_rules=false',
-    'distribute_user' : 'users?social_authentication=false&send_pin_number_letter=false&source_institution_code=33PUDB_NETWORK&source_user_id={user_id}&registration_rules=false'
+    'update_user' : 'users/{user_id}?user_id_type=all_unique&send_pin_number_letter=false&recalculate_roles=false&registration_rules=false',
+    'distribute_user' : 'users?social_authentication=false&send_pin_number_letter=false&source_institution_code=33PUDB_NETWORK&source_user_id={user_id}&registration_rules=false',
+    'create_user' : 'users?social_authentication=false&send_pin_number_letter=false&registration_rules=true'
 }
 
 class Users(object):
@@ -54,6 +55,7 @@ class Users(object):
         return '{}/almaws/{}/'.format(self.endpoint, __api_version__)
 
     def fullurl(self, resource, ids={}):
+        self.logger.debug(self.baseurl + RESOURCES[resource].format(**ids))
         return self.baseurl + RESOURCES[resource].format(**ids)
 
     def headers(self, accept='json', content_type=None):
@@ -107,16 +109,15 @@ class Users(object):
             url= self.fullurl(resource, ids) if in_url is None else in_url,
             params=params,
             data=data)
+        
         try:
             response.raise_for_status()  
         except requests.exceptions.HTTPError:
-            if response.status_code == 400 :
-                return 'Error', "{} -- {}".format(400, response)
-            else :
-                error_code, error_message= self.get_error_message(response,accept)
-            if error_code == "401873" :
-                return 'Error', "{} -- {}".format(error_code, "Notice innconnue")
+            self.logger.debug("erreur create user")
+            error_code, error_message= self.get_error_message(response,accept)
             self.logger.error("Alma_Apis :: HTTP Status: {} || Method: {} || URL: {} || Response: {}".format(response.status_code,response.request.method, response.url, response.text))
+            if error_code == '401861' :
+                return 'Error', error_code
             return 'Error', "{} -- {}".format(error_code, error_message)
         except requests.exceptions.ConnectionError:
             error_code, error_message= self.get_error_message(response,accept)
@@ -156,12 +157,33 @@ class Users(object):
         status, response = self.request('POST', 'distribute_user', 
                                 {'user_id': user_id},
                                 data=data, content_type = content_type, accept = accept)
+        self.logger.debug(response)                        
         if status == 'Error':
             return status, response
         else:
             return status, self.extract_content(response)
 
-    def get_user(self, user_id, user_id_type='PRIMARYIDENTIFIER' , user_expand='loans,requests', user_view='brief',accept='json'):
+    def create_user(self, user_id, data, content_type='json', accept='json'):
+        """Créé un lecteur de la zone réseau dans l'institution.
+
+        Args:
+            user_id (_type_): primary_id du lecteur
+            data (_type_): retour de get_user en json sur la NZ
+            content_type (str, optional): _description_. Defaults to 'json'.
+            accept (str, optional): _description_. Defaults to 'json'.
+
+        Returns:
+            _type_: _description_
+        """
+        status, response = self.request('POST', 'create_user',
+                                {'user_id': user_id}, 
+                                data=data, content_type = content_type, accept = accept)
+        if status == 'Error':
+            return status, response
+        else:
+            return status, self.extract_content(response)
+
+    def get_user(self, user_id, user_data = None, user_id_type='PRIMARYIDENTIFIER' , user_expand='loans,requests', user_view='brief',accept='json'):
         """Retourne un usager à partir d'un identifiant
         
         Arguments:
@@ -209,7 +231,7 @@ class Users(object):
         else:
             return status, response.status_code
 
-    def update_user(self, user_id, override, data ,accept='xml',content_type='xml'):
+    def update_user(self, user_id, data, accept='json',content_type='json'):
         """Mets à jour lesinformations utilistaeurs
         
         Arguments:
@@ -227,12 +249,14 @@ class Users(object):
         """ 
 
         status,response = self.request('PUT', 'update_user',
-                                {'user_id' : user_id,
-                                'param_override' : override },
+                                {'user_id' : user_id},
                                 data=data,
                                 accept=accept,
                                 content_type=content_type)
+        
         if status == 'Error':
+            if response == '401861':
+                status, response = self.create_user(user_id=user_id,data=data)
             return status, response
         else:
             return status,  self.extract_content(response)

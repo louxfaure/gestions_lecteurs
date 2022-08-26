@@ -38,27 +38,88 @@ def test_hmac(request):
     else :
         return True
 def get_api_key(institution) :
-        if settings.DEBUG :
-            return settings.ALMA_TEST_API_KEY[institution]
-        else :
-            return settings.ALMA_API_KEY[institution]
+    """Détermine la clef d'API à utiliser en fonction de l'institution et du  statut de débogage.
+    Si le mode Debug est activé on travaille sur les instances de test 
 
-def get_institutions_list() :
-        if settings.DEBUG :
-            return ['NETWORK','UB','UBM','BXSA']
-        else :
-            return ['NETWORK','UB','UBM','IEP','INP','BXSA']
+    Args:
+        institution (string): code institution
 
-def distribute_user(user_id,user_data) :
-    institutions = ['UB','UBM']
-    for institution in institutions :    
+    Returns:
+        string: clef api
+    """
+    if settings.DEBUG :
+        return settings.ALMA_TEST_API_KEY[institution]
+    else :
+        return settings.ALMA_API_KEY[institution]
+
+def get_institutions_list(distribute=False,institution=None) :
+    """Fourni la liste des codes institutions du réseau en fonction de l'activation ou non du mode débogage.
+    Si le mode débug est actif, on travaille sur les instances de tests donc la liste des institutions est limitée.
+    Si la liste est demandée pour le service de distribution des comptes utilisateurs on supprime l'instance dans laquelle les données ont été extraite.
+    En plus dans le acs où les données proviennent d'une instanc"e autre que la NZ on supprime la NETWORK car il s'agit d'utilisateurs non gérés dans cette insatnce
+
+    Args:
+        distribute (bool, optional): Liste demandée par le service distribute user ? Defaults to False.
+        institution (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _array: liste des codes institutions
+    """
+
+    institutions_list = []
+    if settings.DEBUG :
+        institutions_list = ['NETWORK','UB','UBM','BXSA']
+    else :
+        institutions_list = ['NETWORK','UB','UBM','IEP','INP','BXSA']
+    if distribute :
+        institutions_list.remove(institution)
+        if institution != 'NETWORK' :
+            institutions_list.remove('NETWORK')
+    return institutions_list
+
+def copy_nz_user_in_inst(method,institutions_list,user_id,user_data):
+    for institution in institutions_list :
+        logger.debug(method)
         api_key = get_api_key(institution)
         alma_user = Users(apikey=api_key, service=__name__)
-        statut, reponse = alma_user.distribute_user(user_id,user_data)
+        actions = {
+        'GET': alma_user.get_user,
+        'UPDATE': alma_user.update_user,
+        'POST' : alma_user.create_user
+        }
+        statut, reponse = actions[method].__call__(user_id,json.dumps(user_data))
         if statut == "Success" :
             logger.info("{} :: {} :: {}".format(institution,user_id,"Utilisateur copié avec succés"))
         else :
             logger.error("{} :: {} :: {}".format(institution,user_id,reponse))
+    return "Utilisateur traité avec succès", 200
+
+def distribute_user(user) :
+    """Copie un utilisateur dans les différentes instances Alma
+
+    Args:
+        user (string): données utilisateurs dump json
+    """
+    inst_origine=user["institution"]["value"][7:]
+    institutions = get_institutions_list(distribute=True,institution=inst_origine)
+    event=user["event"]["value"]
+    user_data = user["webhook_user"]["user"]
+    user_id = user_data["primary_id"]
+    if inst_origine == 'NETWORK' :
+        if event != 'USER_CREATED' :
+            logger.info("Type de requête non traité")
+            return "Type de requête non traité", 418
+        else :
+            return copy_nz_user_in_inst('GET',institutions,user_id,user_data)
+    else :
+        if user_data["job_category"]["value"] not in ['Exterieur','PEB']:
+            logger.info("Type de requête non traité")
+            return "Type de requête non traité", 418
+        user_data.pop('user_role') 
+        if event == 'USER_CREATED' :
+            return copy_nz_user_in_inst('POST',institutions,user_id,user_data)
+        else :
+            return copy_nz_user_in_inst('UPDATE',institutions,user_id,user_data)
 
 
 class UserInNZ(object):
