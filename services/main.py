@@ -118,8 +118,11 @@ def distribute_user(user) :
         user_data.pop('user_role') 
         if event == 'USER_CREATED' :
             return copy_nz_user_in_inst('POST',institutions,user_id,user_data)
-        else :
+        elif event == 'USER_UPDATED' :
             return copy_nz_user_in_inst('UPDATE',institutions,user_id,user_data)
+        else :
+            logger.info("Type de requête non traité")
+            return "Type de requête non traité", 418
 
 
 class UserInNZ(object):

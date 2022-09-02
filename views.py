@@ -33,7 +33,7 @@ def lecteur(request,identifiant,type_identifiant):
 
 @csrf_exempt #Désactive la protection contre le « Cross site request forgery » pour autoriser les requêtes post depuis un autre domaine
 def webhook(request):
-    # Reçoit les messages en provenance du webhooh alma
+    # Reçoit les messages en provenance du webhook alma
     if request.method != 'POST':
         # Si la requête n'est pas du Post c'est peut être le profil de configuration qui teste la connexion 
         try: 
