@@ -112,13 +112,10 @@ def distribute_user(user) :
         else :
             return copy_nz_user_in_inst('GET',institutions,user_id,user_data)
     else :
-        if user_data["job_category"]["value"] not in ['Exterieur','PEB']:
-            logger.info("Type de requête non traité")
-            return "Type de requête non traité", 418
         user_data.pop('user_role') 
-        if event == 'USER_CREATED' :
+        if event == 'USER_CREATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
             return copy_nz_user_in_inst('POST',institutions,user_id,user_data)
-        elif event == 'USER_UPDATED' :
+        elif event == 'USER_UPDATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
             return copy_nz_user_in_inst('UPDATE',institutions,user_id,user_data)
         else :
             logger.info("Type de requête non traité")
