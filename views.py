@@ -43,7 +43,7 @@ def webhook(request):
         return JsonResponse(challenge)
     # Test l'authentification du web hook
     if not main.test_hmac(request) :
-        return HttpResponse("Le HMAC n'apas été validé",status=500)
+        return HttpResponse("Le HMAC n'a pas été validé",status=500)
     user = json.loads(request.body)
     response, http_code = main.distribute_user(user)
     return HttpResponse(response, status=http_code)

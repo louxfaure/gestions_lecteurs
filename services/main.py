@@ -146,6 +146,8 @@ class UserInNZ(object):
                 self.user_data[institution]=user
                 self.nb_prets += user["loans"]["value"]
                 self.nb_demandes += user["requests"]["value"]
+            elif status == "Error" and user == "401861" :
+                continue
             elif status == "Error":
                 self.error = True
                 self.error_API = "Get User"
