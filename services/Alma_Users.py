@@ -116,7 +116,7 @@ class Users(object):
             self.logger.debug("erreur create user")
             error_code, error_message= self.get_error_message(response,accept)
             self.logger.error("Alma_Apis :: HTTP Status: {} || Method: {} || URL: {} || Response: {}".format(response.status_code,response.request.method, response.url, response.text))
-            if error_code == '401861' :
+            if error_code in ['401861','401890'] :
                 return 'Error', error_code
             return 'Error', "{} -- {}".format(error_code, error_message)
         except requests.exceptions.ConnectionError:
