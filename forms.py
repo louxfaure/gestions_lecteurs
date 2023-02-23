@@ -25,14 +25,17 @@ class ChangeLecteurForm(forms.Form):
         widget=forms.TextInput(attrs={
             "class": "form-control",
             "name": "nouvel_identifiant"}),
+        label='Identifiant principal',
         required=False
         )
     date_expiration =  forms.DateField(
-        # format='%d/%m/%Y',
-        # attrs={"name":"date_expiration"},
+        widget=forms.widgets.DateInput(format="%m/%d/%Y"),
+        required=False,
+        label='Date d''expiration au format jj/mm/dddd'
+        # input_formats='%d/%m/%Y',
         # required=False
         )
-    
+
 class CategorieUsager(forms.Form):
     CHOICES = (('PEB_attente','Bibliothèque PEB'),
             ('Exterieur_attente','Lecteur extérieur'),

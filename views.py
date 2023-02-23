@@ -113,7 +113,7 @@ def result_modif_lecteur(request,identifiant):
     user_data = request.session.get(identifiant)
     for institution  in user_data:
         api_key = main.get_api_key(institution=institution)
-        api = Alma_Users.Users(apikey=api_key, service='Outils_scoop_lecteurs')
+        api = Alma_Users.Users(apikey=api_key, service='gestions_lecteurs')
         results[institution] = {}
         results[institution]["status"], results[institution]["response"] = api.update_user(identifiant,
                                                                                         "user_group,job_category,pin_number,preferred_language,campus_code,rs_libraries,user_title,library_notices",

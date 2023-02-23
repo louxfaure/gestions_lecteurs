@@ -42,7 +42,7 @@ class Users(object):
         self.apikey = apikey
         self.endpoint = 'https://api-eu.hosted.exlibrisgroup.com'
         self.service = service
-        self.logger = logging.getLogger(service)
+        self.logger = logging.getLogger(__name__)
 
     @property
     #Construit la requête et met en forme les réponses
@@ -231,7 +231,7 @@ class Users(object):
         else:
             return status, response.status_code
 
-    def update_user(self, user_id, data, accept='json',content_type='json'):
+    def update_user(self, user_id,force_update, data, accept='json',content_type='json'):
         """Mets à jour lesinformations utilistaeurs
         
         Arguments:
@@ -253,7 +253,6 @@ class Users(object):
                                 data=data,
                                 accept=accept,
                                 content_type=content_type)
-        
         if status == 'Error':
             if response == '401861':
                 status, response = self.create_user(user_id=user_id,data=data)
