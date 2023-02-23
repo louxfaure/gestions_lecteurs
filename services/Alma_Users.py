@@ -231,7 +231,7 @@ class Users(object):
         else:
             return status, response.status_code
 
-    def update_user(self, user_id,force_update, data, accept='json',content_type='json'):
+    def update_user(self, user_id, data, accept='json',content_type='json'):
         """Mets à jour lesinformations utilistaeurs
         
         Arguments:
