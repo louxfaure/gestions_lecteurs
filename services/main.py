@@ -68,7 +68,7 @@ def get_institutions_list(distribute=False,institution=None) :
 
     institutions_list = []
     if settings.DEBUG :
-        institutions_list = ['NETWORK','UB','UBM','BXSA']
+        institutions_list = ['NETWORK','UB','BXSA']
     else :
         institutions_list = ['NETWORK','UB','UBM','IEP','INP','BXSA']
     if distribute :
@@ -79,7 +79,10 @@ def get_institutions_list(distribute=False,institution=None) :
 
 def copy_nz_user_in_inst(method,institutions_list,user_id,user_data):
     for institution in institutions_list :
+        logger.debug(institution)
         logger.debug(method)
+        user_data['user_role'][0]['scope']['value'] = "33PUDB_{}".format(institution)
+        logger.debug(user_data)
         api_key = get_api_key(institution)
         alma_user = Users(apikey=api_key, service=__name__)
         actions = {
@@ -104,6 +107,7 @@ def distribute_user(user) :
     institutions = get_institutions_list(distribute=True,institution=inst_origine)
     event=user["event"]["value"]
     user_data = user["webhook_user"]["user"]
+    user_data['user_role'][0]['scope'].pop('desc')
     user_id = user_data["primary_id"]
     if inst_origine == 'NETWORK' :
         if event != 'USER_CREATED' :
@@ -113,10 +117,10 @@ def distribute_user(user) :
             return copy_nz_user_in_inst('GET',institutions,user_id,user_data)
     else : 
         if event == 'USER_CREATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
-            user_data.pop('user_role')
+            # user_data.pop('user_role')
             return copy_nz_user_in_inst('POST',institutions,user_id,user_data)
         elif event == 'USER_UPDATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
-            user_data.pop('user_role')
+            # user_data.pop('user_role')
             return copy_nz_user_in_inst('UPDATE',institutions,user_id,user_data)
         else :
             logger.info("Type de requête non traité")
