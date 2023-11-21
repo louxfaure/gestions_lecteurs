@@ -107,8 +107,6 @@ def distribute_user(user) :
     institutions = get_institutions_list(distribute=True,institution=inst_origine)
     event=user["event"]["value"]
     user_data = user["webhook_user"]["user"]
-    user_data['user_role'][0]['scope'].pop('desc')
-    user_data['user_role'][0].pop('expiry_date')
     user_id = user_data["primary_id"]
     if inst_origine == 'NETWORK' :
         if event != 'USER_CREATED' :
@@ -116,12 +114,13 @@ def distribute_user(user) :
             return "Type de requête non traité", 418
         else :
             return copy_nz_user_in_inst('GET',institutions,user_id,user_data)
-    else : 
+    else :
+        if user_data['user_role'] :
+            user_data['user_role'][0]['scope'].pop('desc')
+            user_data['user_role'][0].pop('expiry_date')
         if event == 'USER_CREATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
-            # user_data.pop('user_role')
             return copy_nz_user_in_inst('POST',institutions,user_id,user_data)
         elif event == 'USER_UPDATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
-            # user_data.pop('user_role')
             return copy_nz_user_in_inst('UPDATE',institutions,user_id,user_data)
         else :
             logger.info("Type de requête non traité")
