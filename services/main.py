@@ -108,6 +108,7 @@ def distribute_user(user) :
     event=user["event"]["value"]
     user_data = user["webhook_user"]["user"]
     user_data['user_role'][0]['scope'].pop('desc')
+    user_data['user_role'][0].pop('expiry_date')
     user_id = user_data["primary_id"]
     if inst_origine == 'NETWORK' :
         if event != 'USER_CREATED' :
