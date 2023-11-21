@@ -81,7 +81,8 @@ def copy_nz_user_in_inst(method,institutions_list,user_id,user_data):
     for institution in institutions_list :
         logger.debug(institution)
         logger.debug(method)
-        user_data['user_role'][0]['scope']['value'] = "33PUDB_{}".format(institution)
+        if user_data['user_role'] :
+            user_data['user_role'][0]['scope']['value'] = "33PUDB_{}".format(institution)
         logger.debug(user_data)
         api_key = get_api_key(institution)
         alma_user = Users(apikey=api_key, service=__name__)
