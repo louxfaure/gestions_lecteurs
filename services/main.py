@@ -116,8 +116,10 @@ def distribute_user(user) :
             return copy_nz_user_in_inst('GET',institutions,user_id,user_data)
     else :
         if user_data['user_role'] :
-            user_data['user_role'][0]['scope'].pop('desc')
-            user_data['user_role'][0].pop('expiry_date')
+            if "desc" in  user_data['user_role'][0]['scope'] :
+                user_data['user_role'][0]['scope'].pop('desc')
+            if "expiry_date" in user_data['user_role'][0] :
+                user_data['user_role'][0].pop('expiry_date')
         if event == 'USER_CREATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
             return copy_nz_user_in_inst('POST',institutions,user_id,user_data)
         elif event == 'USER_UPDATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
