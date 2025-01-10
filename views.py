@@ -23,12 +23,19 @@ def recherche_lecteur(request):
     return render(request, "gestions_lecteurs/recherche_lecteur.html", locals())
 
 def lecteur(request,identifiant,type_identifiant):
+    logger.debug("DEBUT")
+    logger.debug(identifiant)
     user = main.UserInNZ(identifiant,type_identifiant)
     datas = ("full_name","primary_id","barcode","job_category","user_group","record_type","account_type","expiry_date","loans","requests")
     user_data_in_table = user.get_user_data_in_table(datas)
     request.session[identifiant] = user.user_data
     form = CategorieUsager(request.POST or None)
-    return render(request, "gestions_lecteurs/lecteur.html", locals())
+    logger.debug("FIN")
+     # Ajoutez un log pour vérifier les redirections
+    if request.method == "POST":
+        logger.debug("Redirection après soumission du formulaire")
+
+    return render(request, "gestions_lecteurs/lecteur_result.html", locals())
 
 
 @csrf_exempt #Désactive la protection contre le « Cross site request forgery » pour autoriser les requêtes post depuis un autre domaine

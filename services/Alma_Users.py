@@ -31,6 +31,11 @@ RESOURCES = {
     'distribute_user' : 'users?social_authentication=false&send_pin_number_letter=false&source_institution_code=33PUDB_NETWORK&source_user_id={user_id}&registration_rules=false',
     'create_user' : 'users?social_authentication=false&send_pin_number_letter=false&registration_rules=true'
 }
+NS = {'sru': 'http://www.loc.gov/zing/srw/',
+        'marc': 'http://www.loc.gov/MARC21/slim',
+        'xmlb' : 'http://com/exlibris/urm/general/xmlbeans'
+         }
+
 
 class Users(object):
     """A set of function for interact with Alma Apis in area "User"
@@ -113,7 +118,6 @@ class Users(object):
         try:
             response.raise_for_status()  
         except requests.exceptions.HTTPError:
-            self.logger.debug("erreur create user")
             error_code, error_message= self.get_error_message(response,accept)
             self.logger.error("Alma_Apis :: HTTP Status: {} || Method: {} || URL: {} || Response: {}".format(response.status_code,response.request.method, response.url, response.text))
             if error_code in ['401861','401890'] :

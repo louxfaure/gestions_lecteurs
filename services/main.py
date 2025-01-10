@@ -147,9 +147,10 @@ class UserInNZ(object):
         self.institutions_list = get_institutions_list()
         for institution in self.institutions_list :
             api_key = get_api_key(institution)
+            logger.debug(institution)
             api = Users(apikey=api_key, service=__name__)
             status, user = api.get_user(user_id,user_id_type=user_id_type,user_view='brief',accept='json')
-            # print("{} --> {} : {}".format(institution,status,response))
+            logger.info("{} --> {} : {}".format(institution,status,user))
             if status == "Success":
                 self.user_data[institution]=user
                 self.nb_prets += user["loans"]["value"]
