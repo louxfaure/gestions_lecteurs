@@ -109,6 +109,10 @@ def distribute_user(user) :
     event=user["event"]["value"]
     user_data = user["webhook_user"]["user"]
     user_id = user_data["primary_id"]
+    if event == 'USER_DELETED' :
+        logger.info("Type de requête non traité")
+        return "Type de requête non traité", 418
+
     if inst_origine == 'NETWORK' :
         if event != 'USER_CREATED' :
             logger.info("Type de requête non traité")
