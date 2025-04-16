@@ -19,7 +19,7 @@ def recherche_lecteur(request):
     if form.is_valid():
         type_id = form.cleaned_data['type_identifiant']
         id_lecteur = form.cleaned_data['identifiant']
-        return HttpResponseRedirect(reverse('lecteur', kwargs={'identifiant': id_lecteur.strip(),'type_identifiant':type_id}))
+        return HttpResponseRedirect(reverse('lecteur-result', kwargs={'identifiant': id_lecteur.strip(),'type_identifiant':type_id}))
     return render(request, "gestions_lecteurs/recherche_lecteur.html", locals())
 
 def lecteur(request,identifiant,type_identifiant):
