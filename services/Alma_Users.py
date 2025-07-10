@@ -27,9 +27,9 @@ RESOURCES = {
     'get_user_with_id_type' : 'users/{user_id}?user_id_type={user_id_type}&view={user_view}&expand={user_expand}',
     'retrieve_user_by_id' : 'users?limit=10&offset=0&q=primary_id~{user_id}',
     'delete_user' : 'users/{user_id}',
-    'update_user' : 'users/{user_id}?user_id_type=all_unique&send_pin_number_letter=false&recalculate_roles=false&registration_rules=false',
+    'update_user' : 'users/{user_id}?user_id_type=all_unique&send_pin_number_letter=false&recalculate_roles=true&registration_rules=false',
     'distribute_user' : 'users?social_authentication=false&send_pin_number_letter=false&source_institution_code=33PUDB_NETWORK&source_user_id={user_id}&registration_rules=false',
-    'create_user' : 'users?social_authentication=false&send_pin_number_letter=false&registration_rules=true'
+    'create_user' : 'users?social_authentication=false&send_pin_number_letter=false&registration_rules=false'
 }
 NS = {'sru': 'http://www.loc.gov/zing/srw/',
         'marc': 'http://www.loc.gov/MARC21/slim',

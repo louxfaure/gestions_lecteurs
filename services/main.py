@@ -81,14 +81,14 @@ def copy_nz_user_in_inst(method,institutions_list,user_id,user_data):
     for institution in institutions_list :
         logger.debug(institution)
         logger.debug(method)
-        if user_data['user_role'] :
-            user_data['user_role'][0]['scope']['value'] = "33PUDB_{}".format(institution)
+        # if user_data['user_role'] :
+        #     user_data['user_role'][0]['scope']['value'] = "33PUDB_{}".format(institution)
         logger.debug(user_data)
         api_key = get_api_key(institution)
         alma_user = Users(apikey=api_key, service=__name__)
         actions = {
         'GET': alma_user.get_user,
-        'UPDATE': alma_user.update_user,
+        'UPDATE': alma_user.update_user, 
         'POST' : alma_user.create_user
         }
         statut, reponse = actions[method].__call__(user_id,json.dumps(user_data))
@@ -122,10 +122,11 @@ def distribute_user(user) :
             return copy_nz_user_in_inst('GET',institutions,user_id,user_data)
     else :
         if user_data['user_role'] :
-            if "desc" in  user_data['user_role'][0]['scope'] :
-                user_data['user_role'][0]['scope'].pop('desc')
-            # if "expiry_date" in user_data['user_role'][0] :
-            #     user_data['user_role'][0].pop('expiry_date')
+            user_data.pop('user_role')
+            # logger.debug("Rôle utilisateur : {}".format(json.dumps(user_data['user_role'])))
+            # if "desc" in  user_data['user_role'][0]['scope'] :
+            #     user_data['user_role'][0]['scope'].pop('desc')
+            # user_data['user_role'][0]['expiry_date'] = ""
         if event == 'USER_CREATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
             return copy_nz_user_in_inst('POST',institutions,user_id,user_data)
         elif event == 'USER_UPDATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
