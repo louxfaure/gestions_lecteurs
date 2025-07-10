@@ -99,8 +99,9 @@ def copy_nz_user_in_inst(method,institutions_list,user_id,user_data):
     return "Utilisateur traité avec succès", 200
 
 def distribute_user(user) :
-    """Copie un utilisateur dans les différentes instances Alma
-
+    """Copie un utilisateur dans les différentes instances Alma Ne traite que les modification et les créations d'utilisateurs.
+    DEpuis la Zone réseau (NETWORK) distribution des comptes externes (ie chargés depuis le SI) dans les institutions du réseau Alma.
+    Depuis les Institutions du réseau Alma (UB, IEP, INP, BxSA,UBM) distribution des comptes internes (ie créés dans Alma) dans les autres institutions du réseau Alma.
     Args:
         user (string): données utilisateurs dump json
     """
@@ -123,8 +124,8 @@ def distribute_user(user) :
         if user_data['user_role'] :
             if "desc" in  user_data['user_role'][0]['scope'] :
                 user_data['user_role'][0]['scope'].pop('desc')
-            if "expiry_date" in user_data['user_role'][0] :
-                user_data['user_role'][0].pop('expiry_date')
+            # if "expiry_date" in user_data['user_role'][0] :
+            #     user_data['user_role'][0].pop('expiry_date')
         if event == 'USER_CREATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
             return copy_nz_user_in_inst('POST',institutions,user_id,user_data)
         elif event == 'USER_UPDATED' and user_data["job_category"]["value"] in ['Exterieur','PEB'] :
